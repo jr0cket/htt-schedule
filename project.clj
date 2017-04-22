@@ -1,8 +1,8 @@
 (defproject htt-schedule "0.1.0-SNAPSHOT"
-  :description "FIXME: write description"
-  :url "http://example.com/FIXME"
-  :license {:name "Eclipse Public License"
-            :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :description "A simple conference schedule using Clojurescript, Om and Bootstrap"
+  :url "https://github.com/jr0cket/htt-schedule"
+  :license {:name "Creative Commons Attribution-Sharealike International 4.0"
+            :url "https://creativecommons.org"}
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.89" :scope "provided"]
@@ -98,7 +98,11 @@
              ;;
              ;; :open-file-command "myfile-opener"
 
-             :server-logfile "log/figwheel.log"}
+             :server-logfile "log/figwheel.log"
+
+             :server-port 3450}
+
+
 
   :doo {:build "test"}
 
