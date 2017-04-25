@@ -83,41 +83,60 @@
 
 (defn add-session [cursor component]
   (reify
-    om/IRender
-    (render [this]
+    om/IInitState
+    (init-state [this]
+      {:title ""
+       :description ""
+       :twitter-handle ""})
+    om/IRenderState
+    (render-state [this state]
       (dom/div nil
         (dom/h3 nil "Add New Session")
         (dom/form #js {:className "form-horizontal"}
                   (dom/input #js {:type "text"
                                   :className "form-control"
+                                  :value (:title state)
+                                  :onChange (fn [event]
+                                              (om/set-state! component :title
+                                                (-> event .-target .-value)))
                                   :placeholder "Session Title"})
                   (dom/textarea #js {:className "form-control"
                                      :placeholder "Session description"
+                                     :value (:description state)
+                                     :onChange (fn [event]
+                                                 (om/set-state! component :description
+                                                   (-> event .-target .-value)))
                                      :rows "5"})
                   (dom/input #js {:type "text"
                                   :className "form-control"
+                                  :value (:twitter-handle state)
+                                  :onChange (fn [event]
+                                              (om/set-state! component :twitter-handle
+                                                (-> event .-target .-value)))
                                   :placeholder "Twitter handle"})
                   (dom/button #js {:className "btn btn-primary"
                                    :onClick (fn [e]
                                               (.preventDefault e)
-                                              (om/transact! cursor :entries
-                                                            (fn [items]
-                                                              ((fnil conj []) items
-                                                               {:title "summary"
-                                                                :description "date-time"
-                                                                :twitter-handle "notes"}))))}
+                                              (om/transact! cursor :schedule
+                                                            (fn [new-talk]
+                                                              ((fnil conj []) new-talk
+                                                               {:title (:title state)
+                                                                :description (:description state)
+                                                                :twitter-handle (:twitter-handle state)}))))}
                               "Add New Session"))
                ))))
+
 
 
 (defn root-component [app owner]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:className "container"}
+      (dom/div #js {:className "container"}  ;; creates javascript {className : "container"}
                (dom/p #js {:className "jumbotron" :style #js {:fontSize "42px"} } (:text app))
                (om/build schedule app)
                (om/build add-session app)))))
+
 
 ;; content header options
 ;; jumbotron
