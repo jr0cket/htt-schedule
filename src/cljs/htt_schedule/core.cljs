@@ -19,17 +19,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Om Components
 
-
-(defn star-session [cursor component]
-  (reify
-    om/IRender
-    (render [this]
-      (dom/button
-       #js {:className "btn btn-default btn-sm glyphicon glyphicon-star"
-            :onClick #(println "update the star icon vote")}
-       (str "Vote for " cursor)))))
-
-;; TODO: use core.async to clear all the stars ?
+;; Components for session detail
 
 (defn twitter-handle [cursor component]
   (reify
@@ -49,8 +39,19 @@
               :width  "50px"
               :height "50px"})))))
 
+(defn session-star [cursor component]
+  (reify
+    om/IRender
+    (render [this]
+      (dom/button
+       #js {:className "btn btn-default btn-sm glyphicon glyphicon-star"
+            :onClick #(println "update the star icon vote")}
+       (str "Vote for " cursor)))))
 
-(defn talk-detail [cursor component]
+;; TODO: use core.async to clear all the stars ?
+
+
+(defn session-detail [cursor component]
   (reify
     om/IRender
     (render [this
@@ -67,41 +68,20 @@
 
         (om/build twitter-handle (:twitter-handle cursor))
         (om/build twitter-profile-picture (:twitter-handle cursor))
-        (om/build star-session (:twitter-handle cursor)))))))
+        (om/build session-star (:twitter-handle cursor)))))))
 
 
-;; not rendering bootstrap properly
-#_(defn talk-detail-media [cursor component]
-  (reify
-    om/IRender
-    (render [this]
-
-      (dom/div
-       #js {:className "media media-right"}
-
-       (dom/div
-        #js {:className "media-heading"} (:title cursor))
-
-       (dom/a
-        #js {:className "media-body"
-             :href (str "https://twitter.com/" cursor "/profile.png")})
-
-        (dom/div nil (:description cursor))
-
-        (om/build twitter-handle (:twitter-handle cursor))))))
-
-
-(defn schedule [cursor component]
+(defn schedule-builder [cursor component]
   (reify
     om/IRender
     (render [this]
       (dom/div nil
-        (for [talk (:schedule cursor)]
+        (for [session-data (:schedule cursor)]
           #_(dom/p nil "Please, Lets go loopy")
-          (om/build talk-detail talk))))))
+          (om/build session-detail session-data))))))
 
 
-(defn add-session [cursor component]
+(defn session-add [cursor component]
   (reify
     om/IInitState                       ; component-local state (rather than just input fields)
     (init-state [this]
@@ -167,8 +147,8 @@
       (dom/div
         #js {:className "container"}  ;; creates javascript {className : "container"}
         (dom/p #js {:className "jumbotron" :style #js {:fontSize "42px"} } (:text app))
-        (om/build schedule app)
-        (om/build add-session app)))))
+        (om/build schedule-builder app)
+        (om/build session-add app)))))
 
 
 (om/root
