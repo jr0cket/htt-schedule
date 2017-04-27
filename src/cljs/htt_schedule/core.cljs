@@ -11,6 +11,11 @@
                           :schedule []}))
 
 
+;; A very naughty hard coded twitter profile (should get from picture via twitter api)
+;; Until then we are playing "Being John Stevenson"
+(def hard-coded-tiwtter-profile
+  "https://pbs.twimg.com/profile_images/857274701391028224/Ocn-IuEC_400x400.jpg")
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Om Components
 
@@ -28,7 +33,7 @@
     (render [this]
       (dom/div nil
         (dom/img
-         #js {:src "https://pbs.twimg.com/profile_images/857274701391028224/Ocn-IuEC_400x400.jpg"
+         #js {:src hard-coded-tiwtter-profile
               :width  "50px"
               :height "50px"})))))
 
