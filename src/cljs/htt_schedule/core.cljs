@@ -4,57 +4,76 @@
 
 (enable-console-print!)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Data structure for our application state
+
 (defonce app-state (atom {:text "ProgsCon Awesomenessness"
-                      :schedule []}))
+                          :schedule []}))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Om Components
 
 (defn twitter-handle [cursor component]
   (reify
     om/IRender
     (render [this]
-      (dom/a #js {:href (str "https://twitter.com/" cursor)}
-             (str "@" cursor)))))
+      (dom/a
+       #js {:href (str "https://twitter.com/" cursor)}
+       (str "@" cursor)))))
 
-;; Add twitter icon button
-;; <a class="btn btn-social-icon btn-twitter">
-;; <span class="fa fa-twitter"></span>
-;; </a>
-
-
-#_(defn talk-detail [cursor component]
+(defn twitter-profile-picture [cursor component]
   (reify
     om/IRender
     (render [this]
-      (dom/div #js {:className "panel panel-primary"}
-               (dom/div #js {:className "panel-heading"} (:title cursor))
-               (dom/div #js {:className "panel-body"}
-                        (dom/div nil (:description cursor))
-                        (dom/a #js {:href (str "https://twitter.com/" (:twitter-handle cursor))} (str "@" (:twitter-handle cursor))))))))
+      (dom/div nil
+        (dom/img
+         #js {:src "https://pbs.twimg.com/profile_images/857274701391028224/Ocn-IuEC_400x400.jpg"
+              :width  "50px"
+              :height "50px"})))))
 
 
-;; Separate out the generation of the twitter handle, updating the cursor to just contain the twitter handle (saving us from extracting it in the twitter handler component)
 (defn talk-detail [cursor component]
   (reify
     om/IRender
-    (render [this]
-      (dom/div #js {:className "panel panel-primary"}
-               (dom/div #js {:className "panel-heading"} (:title cursor))
-               (dom/div #js {:className "panel-body"}
-                        (dom/div nil (:description cursor))
-                        #_(dom/div nil
-                                 (om/img #js {:src "https://twitter.com/logo.png"}))
-                        (om/build twitter-handle (:twitter-handle cursor)))))))
+    (render [this
+]
+      (dom/div
+       #js {:className "panel panel-primary"}
 
-#_(dom/div nil
-           (dom/div #js {:style {:color "blue"}} (:title cursor))
-           (dom/div nil (:description cursor))
-           (dom/a #js {:href (str "https://twitter.com/" (:twitter-handle cursor))} (:twitter-handle cursor)))
+       (dom/div
+        #js {:className "panel-heading"} (:title cursor))
 
+       (dom/div
+        #js {:className "panel-body"}
+        (dom/div nil (:description cursor))
+
+        (om/build twitter-handle (:twitter-handle cursor))
+        (om/build twitter-profile-picture (:twitter-handle cursor)))))))
 
 
 ;; Add a star button to each talk using bootstrap
-;; <button type="button" class="btn btn-default btn-lg">
-;; <span class="glyphicon glyphicon-star" aria-hidden="true"></span> Star
-;; </button>
+;; <button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> Star </button>
+
+;; not rendering bootstrap properly
+#_(defn talk-detail-media [cursor component]
+  (reify
+    om/IRender
+    (render [this]
+
+      (dom/div
+       #js {:className "media media-right"}
+
+       (dom/div
+        #js {:className "media-heading"} (:title cursor))
+
+       (dom/a
+        #js {:className "media-body"
+             :href (str "https://twitter.com/" cursor "/profile.png")})
+
+        (dom/div nil (:description cursor))
+
+        (om/build twitter-handle (:twitter-handle cursor))))))
 
 
 (defn schedule [cursor component]
@@ -62,84 +81,79 @@
     om/IRender
     (render [this]
       (dom/div nil
-             (for [talk (:schedule cursor)]
-               #_(dom/p nil "Please, Lets go loopy")
-               (om/build talk-detail talk))))))
-
-
-;; talk
-#_{:tile " "
- :description " "
- :twitter-handle ""}
-
-;; schedule
-#_[{:tile " "
-  :description " "
-  :twitter-handle ""}
- {:tile " "
-  :description " "
-  :twitter-handle ""}]
+        (for [talk (:schedule cursor)]
+          #_(dom/p nil "Please, Lets go loopy")
+          (om/build talk-detail talk))))))
 
 
 (defn add-session [cursor component]
   (reify
-    om/IInitState
+    om/IInitState                       ; component-local state (rather than just input fields)
     (init-state [this]
       {:title ""
        :description ""
        :twitter-handle ""})
     om/IRenderState
-    (render-state [this state]
+    (render-state [this state]          ; component will re-render when state changes
       (dom/div nil
         (dom/h3 nil "Add New Session")
-        (dom/form #js {:className "form-horizontal"}
-                  (dom/input #js {:type "text"
-                                  :className "form-control"
-                                  :value (:title state)
-                                  :onChange (fn [event]
-                                              (om/set-state! component :title
-                                                (-> event .-target .-value)))
-                                  :placeholder "Session Title"})
-                  (dom/textarea #js {:className "form-control"
-                                     :placeholder "Session description"
-                                     :value (:description state)
-                                     :onChange (fn [event]
-                                                 (om/set-state! component :description
-                                                   (-> event .-target .-value)))
-                                     :rows "5"})
-                  (dom/input #js {:type "text"
-                                  :className "form-control"
-                                  :value (:twitter-handle state)
-                                  :onChange (fn [event]
-                                              (om/set-state! component :twitter-handle
-                                                (-> event .-target .-value)))
-                                  :placeholder "Twitter handle"})
-                  (dom/button #js {:className "btn btn-primary"
-                                   :onClick (fn [e]
-                                              (.preventDefault e)
-                                              (om/transact! cursor :schedule
-                                                            (fn [new-talk]
-                                                              ((fnil conj []) new-talk
-                                                               {:title (:title state)
-                                                                :description (:description state)
-                                                                :twitter-handle (:twitter-handle state)}))))}
-                              "Add New Session"))
-               ))))
 
+        (dom/form
+         #js {:className "form-horizontal"}
+
+         (dom/input
+          #js {:type "text"
+               :className "form-control"
+               :value (:title state)
+               :onChange
+                 (fn [event]
+                   (om/set-state! component :title
+                     (-> event .-target .-value)))
+               :placeholder "Session Title"})
+
+         (dom/textarea
+          #js {:className "form-control"
+               :placeholder "Session description"
+               :value (:description state)
+               :onChange
+                 (fn [event]
+                   (om/set-state! component :description
+                     (-> event .-target .-value)))
+               :rows "5"})
+
+         (dom/input
+          #js {:type "text"
+               :className "form-control"
+               :value (:twitter-handle state)
+               :onChange
+                 (fn [event]
+                   (om/set-state! component :twitter-handle
+                     (-> event .-target .-value)))
+               :placeholder "Twitter handle"})
+
+         (dom/button
+          #js {:className "btn btn-primary"
+               :onClick
+                 (fn [e]
+                   (.preventDefault e)
+                   (om/transact! cursor :schedule
+                     (fn [new-talk]
+                       ((fnil conj []) new-talk
+                        {:title (:title state)
+                         :description (:description state)
+                         :twitter-handle (:twitter-handle state)}))))}
+          "Add New Session"))))))
 
 
 (defn root-component [app owner]
   (reify
     om/IRender
     (render [_]
-      (dom/div #js {:className "container"}  ;; creates javascript {className : "container"}
-               (dom/p #js {:className "jumbotron" :style #js {:fontSize "42px"} } (:text app))
-               (om/build schedule app)
-               (om/build add-session app)))))
-
-
-;; content header options
-;; jumbotron
+      (dom/div
+        #js {:className "container"}  ;; creates javascript {className : "container"}
+        (dom/p #js {:className "jumbotron" :style #js {:fontSize "42px"} } (:text app))
+        (om/build schedule app)
+        (om/build add-session app)))))
 
 
 (om/root
