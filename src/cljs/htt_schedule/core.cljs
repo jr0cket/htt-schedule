@@ -19,6 +19,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Om Components
 
+
+(defn star-session [cursor component]
+  (reify
+    om/IRender
+    (render [this]
+      (dom/button
+       #js {:className "btn btn-default btn-sm glyphicon glyphicon-star"
+            :onClick #(println "update the star icon vote")}
+       (str "Vote for " cursor)))))
+
+;; TODO: use core.async to clear all the stars ?
+
 (defn twitter-handle [cursor component]
   (reify
     om/IRender
@@ -54,11 +66,9 @@
         (dom/div nil (:description cursor))
 
         (om/build twitter-handle (:twitter-handle cursor))
-        (om/build twitter-profile-picture (:twitter-handle cursor)))))))
+        (om/build twitter-profile-picture (:twitter-handle cursor))
+        (om/build star-session (:twitter-handle cursor)))))))
 
-
-;; Add a star button to each talk using bootstrap
-;; <button type="button" class="btn btn-default btn-lg"> <span class="glyphicon glyphicon-star" aria-hidden="true"></span> Star </button>
 
 ;; not rendering bootstrap properly
 #_(defn talk-detail-media [cursor component]
